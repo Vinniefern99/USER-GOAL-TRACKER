@@ -8,7 +8,7 @@ $username = $_SESSION['username'];
 <html xmlns="http://www.w3.org/1999/xhtml">
 <head>
 	<meta http-equiv="Context-Type" content="text/html; charset=utf-8" />
-	<title>Member System - Members</title>
+	<title>Member System - Logout</title>
 </head>
 <body>
 	<?php 
