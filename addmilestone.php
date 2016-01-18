@@ -3,6 +3,7 @@ error_reporting (E_ALL ^ E_NOTICE);
 session_start();
 $userid = $_SESSION['userid'];
 $username = $_SESSION['username'];
+$goalid = $_GET['goalid'];
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -10,59 +11,85 @@ $username = $_SESSION['username'];
 	<meta http-equiv="Context-Type" content="text/html; charset=utf-8" />
 	<title>Member System - Reset Password</title>
 	<link rel="stylesheet" href="//code.jquery.com/ui/1.11.4/themes/smoothness/jquery-ui.css">
-  <script src="//code.jquery.com/jquery-1.10.2.js"></script>
-  <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
-  <link rel="stylesheet" href="/resources/demos/style.css">
-  <script>
-  $(function() {
-    $( "#datepicker" ).datepicker();
-  });
-  </script>
+ 	 <script src="//code.jquery.com/jquery-1.10.2.js"></script>
+ 	 <script src="//code.jquery.com/ui/1.11.4/jquery-ui.js"></script>
+ 	 <link rel="stylesheet" href="/resources/demos/style.css">
+ 	 <script>
+ 	 	$(function() {
+  		  $( "#datepicker" ).datepicker();
+ 	 	});
+ 	 </script>
 </head>
 <body>
 	<?php 
 	
+	$headerform = "
+		<table>
+		<tr>
+			<td><a href='./logout.php'>Logout</a></td>
+			<td><a href='./resetpass.php'>Reset Your Password</a></td>
+		</tr>
+		</table>
+		<table>
+		<tr>
+			<td><br /><a href='./managegoal.php?goalid=$goalid'><- Milestones</a></td>
+		</tr>
+		</table>
+		<table>
+		<tr>
+			<td><br /><b>Enter your new Milestone:</b></td>
+		</tr>
+		</table>";
+	
 	if ($username && $userid) {
+		
+		echo "Welcome, <b>$username</b>";
+		echo $headerform;
 		
 		if ($_POST['setmilestonebtn']) {
 			// get the form data
 			$name = $_POST['name'];
-			$description = $_POST['desription'];
-			$gkvitype = $_POST['kvitype']; 
+			$description = $_POST['description'];
 			$currentkvi = $_POST['currentkvi'];
 			$targetkvi = $_POST['targetkvi'];
+			$targetdate = $_POST['targetdate'];
+			
 			
 			//make sure all data was entered
 			
 			if ($name) {
 				if ($description) {
-					if ($goaltargetkvi && $goaltargetkvi > 0 && $goalcurrentkvi >= 0) {
+					if ($targetkvi && $targetkvi > 0 && $currentkvi >= 0) {
 						
 						//connect to db
 						require("./connect.php");
 						
-						//make sure goal isn't already in db
-						$query = mysql_query("SELECT * FROM goal WHERE user_id = '$userid' AND goal_name = '$goalname'");
+						//make sure milestone isn't already in db
+						$query = mysql_query("SELECT * FROM milestone WHERE goal_id = '$goalid' AND milestone_name = '$name'");
 						$numrows = mysql_num_rows($query);
 						if ($numrows == 0) {
 				
 							//add the goal to the database
-							mysql_query("INSERT INTO `goal` (`goal_id`, `user_id`, `goal_name`, `goal_start`, `goal_complete`, `target_kvi`, `current_kvi`) 
-											VALUES (NULL, '$userid', '$goalname', '$goalstartdate', NULL, '$goaltargetkvi', '$goalcurrentkvi')" );
+							mysql_query("INSERT INTO `milestone` (`milestone_id`, `goal_id`, `milestone_name`, `Description`, `target_kvi`, `current_kvi`, `target_date`, `completed_date`) 
+											VALUES (NULL, '$goalid', '$name', '$description', '$targetkvi', '$currentkvi', '$targetdate', NULL)" );
 							
+							//if current kvi > 0, add the ammount to the current kvi of the goal
+							if ($currentkvi > 0) {
+								mysql_query("UPDATE `goal` SET `current_kvi` = `current_kvi` + $currentkvi WHERE `goal_id` = '$goalid'");
+							}
 							
-							//make sure the goal was added was changed
-							$query = mysql_query("SELECT * FROM goal WHERE user_id = '$userid' AND goal_name = '$goalname' AND goal_start = '$goalstartdate' 
-												AND target_kvi = '$goaltargetkvi' AND current_kvi = '$goalcurrentkvi'");
+							//make sure the milestone was added was changed
+							$query = mysql_query("SELECT * FROM milestone WHERE goal_id = '$goalid' AND milestone_name = '$name' AND Description = '$description' 
+												AND target_kvi = '$targetkvi' AND current_kvi = '$currentkvi' AND target_date = '$targetdate'");
 							$numrows = mysql_num_rows($query);
 							if ($numrows == 1) {
-								echo "Your goal has been added.";
+								echo "Your milestone has been added.";
 							}
 							else 
-								echo "An error has occured and your goal.";
+								echo "An error has occured and your milestone was not added.";
 						}
 						else 
-							echo "You already have this goal set.";
+							echo "You already have this milestone set.";
 				
 						mysql_close();
 					}
@@ -77,7 +104,8 @@ $username = $_SESSION['username'];
 				echo "You must enter a name for your milestone.";
 		}
 		
-		echo "<form action='./addmilestone.php' method='post'>
+		
+		echo "<form action='./addmilestone.php?goalid=$goalid' method='post'>
 		<table>
 		<tr>
 			<td>Milestone Name:</td>
@@ -88,16 +116,16 @@ $username = $_SESSION['username'];
 			<td><input type='text' name='description'></td>
 		</tr>
 		<tr>
-			<td>KVI Type</td>
-			<td><input type='number' name='kvitype'></td>
-		</tr>
-		<tr>
 			<td>Target KVI:</td>
-			<td><input type='number' name='targetkvi' value='0'></td>
+			<td><input type='number' name='targetkvi'></td>
 		</tr>
 		<tr>
 			<td>Current KVI:</td>
-			<td><input type='number' name='currentkvi' value='0'></td>
+			<td><input type='number' name='currentkvi'></td>
+		</tr>
+		<tr>
+			<td>Target Date:</td>
+			<td><input type='text' id='datepicker' name='targetdate'></td>
 		</tr>
 		<tr>
 			<td></td>

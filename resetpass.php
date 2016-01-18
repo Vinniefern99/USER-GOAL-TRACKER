@@ -11,6 +11,9 @@ $username = $_SESSION['username'];
 	<title>Member System - Reset Password</title>
 </head>
 <body>
+	<button onclick="history.go(-1);">Back</button>
+	<br />
+	<br />
 	<?php 
 	
 	if ($username && $userid) {
@@ -72,7 +75,10 @@ $username = $_SESSION['username'];
 		echo "<form action='./resetpass.php' method='post'>
 		<table>
 		<tr>
-			<td>Current Password:</td>
+			<td><a href='./member.php'>Back to Homepage</a></td>
+		</tr>
+		<tr>
+			<td><br />Current Password:</td>
 			<td><input type='text' name='pass'></td>
 		</tr>
 		<tr>

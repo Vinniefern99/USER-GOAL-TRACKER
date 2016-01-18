@@ -21,10 +21,15 @@ $username = $_SESSION['username'];
 			<td><a href='./resetpass.php'>Reset Your Password</a></td>
 		</tr>
 		<table>
+		<table>
+		<tr>
+			<td><br /><b>Homepage</b></td>
+		</tr>
+		<table>
 		</table>
 		<tr>
 			<td><br /><b>Goals:</b> </td>
-			<td><br />(Click a goal to manage milestones and progress)</td>
+			<td><br />(Click a goal to manage goal (milestones, completion date, etc))</td>
 		</tr>
 		</table>
 		</form>";
@@ -57,16 +62,24 @@ $username = $_SESSION['username'];
 			<tr>
 				<td><b>Goal</b></td>
 				<td><b>Date Started</b></td>
+				<td><b>Date Completed</b></td>
+				<td><b>Target KVI</b></td>
+				<td><b>Current KVI</b></td>
 				<td><b>% Complete</b></td>
+				<th colspan='3'>Modify</th>
 			</tr>\n";
-			
 			
 			while($row = mysql_fetch_assoc($query)) {	
 				echo "
 				<tr>
 					<td><a href='./managegoal.php?goalid=".$row['goal_id']."'>".$row['goal_name']."</a></td>
 					<td>".$row['goal_start']."</td>
+					<td>".$row['goal_complete']."</td>
+					<td align='center'>".$row['target_kvi']."</td>
+					<td align='center'>".$row['current_kvi']."</td>
 					<td align='center'>".(($row['current_kvi']/$row['target_kvi'])*100)."%</td>	
+					<td><a href='./editgoal.php?goalid=".$row['goal_id']."&goalname=".$row['goal_name']."&goalstart=".$row['goal_start']."&targetkvi=".$row['target_kvi']."&currentkvi=".$row['current_kvi']."'>Edit</a></td>
+					<td><a href='./deletegoal.php?goalid=".$row['goal_id']."'>Delete</a></td>
 				</tr>\n";
 			}	
 		}

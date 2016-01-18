@@ -3,6 +3,12 @@ error_reporting (E_ALL ^ E_NOTICE);
 session_start();
 $userid = $_SESSION['userid'];
 $username = $_SESSION['username'];
+$goalid = $_GET['goalid'];
+$goalname = $_GET['goalname'];
+$goalstart = $_GET['goalstart'];
+$targetkvi = $_GET['targetkvi'];
+$currentkvi = $_GET['currentkvi'];
+
 ?>
 <!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -33,11 +39,6 @@ $username = $_SESSION['username'];
 		<tr>
 			<td><br /><a href='./member.php'><- Goals</a></td>
 		</tr>
-		</table>
-		<table>
-		<tr>
-			<td><br /><b>Enter your new goal:</b></td>
-		</tr>
 		</table>";
 	
 	if ($username && $userid) {
@@ -47,42 +48,33 @@ $username = $_SESSION['username'];
 		
 		if ($_POST['setgoalbtn']) {
 			// get the form data
-			$name = $_POST['name'];
-			$startdate = $_POST['startdate'];
-			$targetkvi = $_POST['targetkvi']; 
-			$currentkvi = $_POST['currentkvi'];
+			$newname = $_POST['name'];
+			$newstartdate = $_POST['startdate'];
+			$newtargetkvi = $_POST['targetkvi']; 
+			$newcurrentkvi = $_POST['currentkvi'];
 			
 			//make sure all data was entered
 			
-			if ($name) {
-				if ($startdate) {
-					if ($targetkvi && $targetkvi > 0 && $currentkvi >= 0) {
+			if ($newname) {
+				if ($newstartdate) {
+					if ($newtargetkvi && $newtargetkvi > 0 && $newcurrentkvi >= 0) {
 						
 						//connect to db
 						require("./connect.php");
 						
-						//make sure goal isn't already in db
-						$query = mysql_query("SELECT * FROM goal WHERE user_id = '$userid' AND goal_name = '$name'");
+						//update the goal with the edits
+						mysql_query("UPDATE `goal` SET `goal_name`='$newname',`goal_start`='$newstartdate',`target_kvi`='$newtargetkvi', `current_kvi`='$newcurrentkvi' 
+								WHERE `goal_id` = '$goalid'");
+						
+						//make sure the goal was updated
+						$query = mysql_query("SELECT * FROM goal WHERE user_id = '$userid' AND goal_name = '$newname' AND goal_start = '$newstartdate' 
+											AND target_kvi = '$newtargetkvi' AND current_kvi = '$newcurrentkvi'");
 						$numrows = mysql_num_rows($query);
-						if ($numrows == 0) {
-				
-							//add the goal to the database
-							mysql_query("INSERT INTO `goal` (`goal_id`, `user_id`, `goal_name`, `goal_start`, `goal_complete`, `target_kvi`, `current_kvi`) 
-											VALUES (NULL, '$userid', '$name', '$startdate', NULL, '$targetkvi', '$currentkvi')" );
-							
-							
-							//make sure the goal was added was changed
-							$query = mysql_query("SELECT * FROM goal WHERE user_id = '$userid' AND goal_name = '$name' AND goal_start = '$startdate' 
-												AND target_kvi = '$targetkvi' AND current_kvi = '$currentkvi'");
-							$numrows = mysql_num_rows($query);
-							if ($numrows == 1) {
-								echo "Your goal has been added.";
-							}
-							else 
-								echo "An error has occured and your goal was not added.";
+						if ($numrows == 1) {
+							echo "Your goal has been updated. <a href='./member.php'>Back to Goals</a>";
 						}
 						else 
-							echo "You already have this goal set.";
+							echo "An error has occured and your goal was not updated. <a href='./member.php'>Back to Goals</a>";
 				
 						mysql_close();
 					}
@@ -97,27 +89,27 @@ $username = $_SESSION['username'];
 				echo "You must enter a name for your goal.";
 		}
 		
-		echo "<form action='./addgoal.php' method='post'>
+		echo "<form action='./editgoal.php?goalid=$goalid' method='post'>
 		<table>
 		<tr>
-			<td>Goal Name:</td>
-			<td><input type='text' name='name'></td>
+			<td><br />Goal Name:</td>
+			<td><br /><input type='text' name='name' value='$goalname'></td>
 		</tr>
 		<tr>
 			<td>Start Date:</td>
-			<td><input type='text' id='datepicker' name='startdate'></td>
+			<td><input type='text' id='datepicker' name='startdate' value='$goalstart'></td>
 		</tr>
 		<tr>
 			<td>Target KVI:</td>
-			<td><input type='number' name='targetkvi'></td>
+			<td><input type='number' name='targetkvi' value='$targetkvi'></td>
 		</tr>
 		<tr>
 			<td>Current KVI:</td>
-			<td><input type='number' name='currentkvi' value='0'></td>
+			<td><input type='number' name='currentkvi' value='$currentkvi'></td>
 		</tr>
 		<tr>
 			<td></td>
-			<td><input type='submit' name='setgoalbtn' value='Submit'></td>
+			<td><input type='submit' name='setgoalbtn' value='Submit Edits'></td>
 		</tr>
 		
 		</form>";
@@ -125,8 +117,6 @@ $username = $_SESSION['username'];
 	}
 	else
 		echo "Please login to access this page. <a href='./login.php'>Login here</a>";
-
-
 
 	?>
 
