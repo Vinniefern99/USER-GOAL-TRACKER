@@ -88,7 +88,15 @@ $username = $_SESSION['username'];
 			echo "You don't have any goals. Click Add Goals to start.";
 		
 		echo "</table>";
-		echo "<td><br /><a href='./addgoal.php'>Add a Goal</a></td>";
+		echo "<td><br /><a href='./addgoal.php'>Add a Goal</a><br /><br /><br /></td>";
+		
+		echo "<td><b>Directions:</b><br /></td>";
+		echo "I used the concept of KVI (key-value indicators) to create this goal-tracking system. 
+			You start with a goal and assign it a KVI value (like 50 or 100). You then create 
+			Milestones that each have a KVI value also...The KVIs of all Milestones should add up to 
+			the KVI of the parent goal. Broken down even further, each Milestone is broken down into 
+			Progress logs that have KVI values. Each time you complete a progress (which would be a single action), 
+			you add a progress log and assign a KVI value to it.";
 		
 		mysql_close();
 	}
