@@ -104,6 +104,9 @@ $form = "<form action='./register.php' method='post'>
 	<td><font color='red'>$errormsg</td>
 </tr>
 <tr>
+	<td><a href='./login.php'><- Login</a></td>
+</tr>
+<tr>
 	<td>Username:</td>
 	<td><input type='text' name='user' value='$getuser'/></td>
 </tr>

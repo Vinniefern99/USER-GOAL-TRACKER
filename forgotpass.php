@@ -21,7 +21,7 @@ $username = $_SESSION['username'];
 			//make sure info provided
 			if ($user) {
 				if ($email) {
-					if ((strlen($email) >= 7) && (strstr($email,"@")) && (strstr($getemail,".")) ){
+					if ((strlen($email) >= 7) && (strstr($email,"@")) && (strstr($email,".")) ){
 						// connect
 						require("./connect.php");
 						
@@ -33,12 +33,12 @@ $username = $_SESSION['username'];
 							$dbemail = $row['email'];
 							
 							//make sure the email is correct
-							if ($email == $dbemail) {
+							if (strtolower($email) == strtolower($dbemail)) {
 								// generate password
 								$pass = rand();
 								$pass = md5($pass);
 								$pass = substr($pass, 1, 15);
-								$password = md5(md5("hg5sefg".$password."h43uihsd"));
+								$password = md5(md5("hg5sefg".$pass."h43uihsd"));
 								
 								//update db with new password
 								mysql_query("UPDATE users SET password = '$password' WHERE username = '$user'");
@@ -84,6 +84,9 @@ $username = $_SESSION['username'];
 		
 		echo "<form action='./forgotpass.php' method='post'>
 		<table>
+		<tr>
+			<td><a href='./login.php'><- Login</a></td>
+		</tr>
 		<tr>
 			<td>Username:</td>
 			<td><input type='text' name='user'/></td>
